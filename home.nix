@@ -20,19 +20,21 @@ in {
 
   # Packages that should be installed to the user profile.
   home.packages = with pkgs; [
+    # TODO decide if this is needed
     git-credential-manager
+	# TODO build youtube music: https://github.com/th-ch/youtube-music?tab=readme-ov-file#build
     firefox-bin
     gnome.nautilus
-    # rmount
     alejandra
+    prismlauncher
     neovim
-    ulauncher
+    ulauncher qpdfview obsidian mpv
     neofetch
     vesktop
     qbittorrent
     # pcloud
     keepassxc
-    spotify
+    
     yazi # terminal file manager
     ripgrep # recursively searches directories for a regex pattern
     jq # A lightweight and flexible command-line JSON processor
@@ -40,6 +42,26 @@ in {
     eza # A modern replacement for ‘ls’
     fzf # A command-line fuzzy finder
   ];
+
+programs.vscode = {
+  enable = true;
+  extensions = with pkgs.vscode-extensions; [
+    dracula-theme.theme-dracula jdinhlife.gruvbox
+    kamadorueda.alejandra
+    vscodevim.vim
+    yzhang.markdown-all-in-one
+    dart-code.flutter
+  ];
+};
+
+programs.obs-studio = {
+    enable = true;
+    # plugins = with pkgs.obs-studio-plugins; [
+      # wlrobs
+      # obs-backgroundremoval
+      # obs-pipewire-audio-capture
+    # ];
+  };
 
   wayland.windowManager.hyprland = {
     enable = true;
