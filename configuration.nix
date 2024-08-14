@@ -39,9 +39,9 @@
 
   # Enable the X11 windowing system.
   services.xserver = {
-	enable = true;
-	desktopManager.xfce.enable = true;
-};
+    enable = true;
+    desktopManager.xfce.enable = true;
+  };
 
   # Configure keymap in X11
   services.xserver = {
@@ -153,8 +153,6 @@
 
   # Set the default editor to vim
   environment.variables.EDITOR = "vim";
-
-  
 
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.

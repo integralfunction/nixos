@@ -6,6 +6,9 @@
 }: let
   inherit (lib) mapAttrsToList;
 in {
+  imports = [
+    ./modules/pcloud.nix
+  ];
   home.username = "river";
   home.homeDirectory = "/home/river";
 
@@ -17,7 +20,7 @@ in {
 
   # Packages that should be installed to the user profile.
   home.packages = with pkgs; [
-git-credential-manager
+    git-credential-manager
     firefox-bin
     gnome.nautilus
     # rmount
@@ -55,7 +58,7 @@ git-credential-manager
       };
       cursor = {
         no_hardware_cursors = true;
-      };  
+      };
       "monitor" = "DP-3,1920x1080@144,0x0,1";
       "$mainMod" = "SUPER";
       "$fileManager" = "nautilus";
