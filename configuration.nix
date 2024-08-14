@@ -38,7 +38,10 @@
   };
 
   # Enable the X11 windowing system.
-  services.xserver.enable = true;
+  services.xserver = {
+	enable = true;
+	desktopManager.xfce.enable = true;
+};
 
   # Configure keymap in X11
   services.xserver = {
@@ -127,7 +130,7 @@
     nix-output-monitor
 
     # misc
-    rclone
+    # rclone
     file
     which
     tree
@@ -150,6 +153,8 @@
 
   # Set the default editor to vim
   environment.variables.EDITOR = "vim";
+
+  
 
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
