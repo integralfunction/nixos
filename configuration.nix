@@ -10,14 +10,24 @@
   ];
 
   # Bootloader.
-  boot.loader = {
-    systemd-boot = {
-      enable = true;
-      # Limit the number of generations to keep
-      configurationLimit = 10;
+  boot = {
+    supportedFilesystems = ["ntfs"];
+    loader = {
+      systemd-boot = {
+        enable = true;
+        # Limit the number of generations to keep
+        configurationLimit = 10;
+      };
+      efi.canTouchEfiVariables = true;
     };
-    efi.canTouchEfiVariables = true;
   };
+  fileSystems."/storage" = {
+    device = "/dev/disk/by-uuid/9A766E96766E7345";
+    fsType = "ntfs-3g";
+    # If ever the username changes, perhaps the uid of it also changes, so update with `id -u <username>`
+    options = ["rw" "uid=1000"];
+  };
+
   # Perform garbage collection weekly to maintain low disk usage
   nix.gc = {
     automatic = true;
