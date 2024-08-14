@@ -30,7 +30,7 @@ in {
     neofetch
     vesktop
     qbittorrent
-    pcloud
+    # pcloud
     keepassxc
     spotify
     yazi # terminal file manager
