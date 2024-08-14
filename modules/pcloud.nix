@@ -1,3 +1,5 @@
+# This is  a temporary module to fix pcloud for seg faulting
+# remove when issue is fixed
 {pkgs, ...}: let
   patchelfFixes = pkgs.patchelfUnstable.overrideAttrs (_finalAttrs: _previousAttrs: {
     src = pkgs.fetchFromGitHub {

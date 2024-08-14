@@ -8,6 +8,7 @@
 in {
   imports = [
     ./modules/pcloud.nix
+    ./modules/software-dev.nix
   ];
   home.username = "river";
   home.homeDirectory = "/home/river";
@@ -49,22 +50,26 @@ in {
   programs.vscode = {
     enable = true;
     extensions = with pkgs.vscode-extensions; [
-      dracula-theme.theme-dracula
+      # Themes
       jdinhlife.gruvbox
-      kamadorueda.alejandra
-      vscodevim.vim
-      yzhang.markdown-all-in-one
-      dart-code.flutter
+      # Nix
       bbenoist.nix
+      kamadorueda.alejandra
+      # MD
+      yzhang.markdown-all-in-one
+      # Flutter
+      dart-code.flutter
+      # Misc
+      vscodevim.vim
     ];
   };
 
   programs.obs-studio = {
     enable = true;
     # plugins = with pkgs.obs-studio-plugins; [
-    # wlrobs
-    # obs-backgroundremoval
-    # obs-pipewire-audio-capture
+    #   wlrobs
+    #   obs-backgroundremoval
+    #   obs-pipewire-audio-capture
     # ];
   };
 
@@ -140,7 +145,6 @@ in {
     };
   };
 
-  # basic configuration of git, please change to your own
   programs.git = {
     enable = true;
     userName = "integralfunction";
@@ -177,6 +181,22 @@ in {
     shellAliases = {
       k = "kubectl";
     };
+  };
+  programs.zsh = {
+    enable = true;
+    enableCompletion = true;
+    autosuggestion.enable = true;
+    syntaxHighlighting.enable = true;
+
+    shellAliases = {
+      ll = "ls -l";
+      nf = "neofetch";
+      update = "sudo nixos-rebuild switch";
+    };
+
+    history.size = 10000;
+    history.ignoreAllDups = true;
+    history.path = "$HOME/.zsh_history";
   };
 
   # This value determines the home Manager release that your

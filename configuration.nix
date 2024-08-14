@@ -21,6 +21,8 @@
       efi.canTouchEfiVariables = true;
     };
   };
+
+  # (Mount?) ntfs storage
   fileSystems."/storage" = {
     device = "/dev/disk/by-uuid/9A766E96766E7345";
     fsType = "ntfs-3g";
@@ -50,6 +52,7 @@
   # Select internationalisation properties.
   i18n.defaultLocale = "en_US.UTF-8";
 
+  # Is this necessary?
   i18n.extraLocaleSettings = {
     LC_ADDRESS = "en_US.UTF-8";
     LC_IDENTIFICATION = "en_US.UTF-8";
@@ -179,6 +182,9 @@
   # Set the default editor to vim
   environment.variables.EDITOR = "vim";
 
+  # Completion for system packages for zsh: https://nix-community.github.io/home-manager/options.xhtml#opt-programs.zsh.enableCompletion
+  environment.pathsToLink = ["/share/zsh"];
+
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
   programs.mtr.enable = true;
@@ -188,9 +194,7 @@
   };
 
   # List services that you want to enable:
-
   services.gnome.gnome-keyring.enable = true;
-
   # Enable the OpenSSH daemon.
   services.openssh.enable = true;
 
