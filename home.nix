@@ -22,19 +22,22 @@ in {
   home.packages = with pkgs; [
     # TODO decide if this is needed
     git-credential-manager
-	# TODO build youtube music: https://github.com/th-ch/youtube-music?tab=readme-ov-file#build
+    # TODO build youtube music: https://github.com/th-ch/youtube-music?tab=readme-ov-file#build
     firefox-bin
     gnome.nautilus
     alejandra
     prismlauncher
     neovim
-    ulauncher qpdfview obsidian mpv
+    ulauncher
+    qpdfview
+    obsidian
+    mpv
     neofetch
     vesktop
     qbittorrent
     # pcloud
     keepassxc
-    
+
     yazi # terminal file manager
     ripgrep # recursively searches directories for a regex pattern
     jq # A lightweight and flexible command-line JSON processor
@@ -43,23 +46,25 @@ in {
     fzf # A command-line fuzzy finder
   ];
 
-programs.vscode = {
-  enable = true;
-  extensions = with pkgs.vscode-extensions; [
-    dracula-theme.theme-dracula jdinhlife.gruvbox
-    kamadorueda.alejandra
-    vscodevim.vim
-    yzhang.markdown-all-in-one
-    dart-code.flutter
-  ];
-};
+  programs.vscode = {
+    enable = true;
+    extensions = with pkgs.vscode-extensions; [
+      dracula-theme.theme-dracula
+      jdinhlife.gruvbox
+      kamadorueda.alejandra
+      vscodevim.vim
+      yzhang.markdown-all-in-one
+      dart-code.flutter
+      bbenoist.nix
+    ];
+  };
 
-programs.obs-studio = {
+  programs.obs-studio = {
     enable = true;
     # plugins = with pkgs.obs-studio-plugins; [
-      # wlrobs
-      # obs-backgroundremoval
-      # obs-pipewire-audio-capture
+    # wlrobs
+    # obs-backgroundremoval
+    # obs-pipewire-audio-capture
     # ];
   };
 
