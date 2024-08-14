@@ -107,7 +107,8 @@
   users.users.river = {
     isNormalUser = true;
     description = "river";
-    extraGroups = ["networkmanager" "wheel"];
+    # shell = pkgs.zsh;
+    extraGroups = ["networkmanager" "wheel" "adbusers"];
   };
 
   services.displayManager = {
@@ -181,6 +182,8 @@
 
   # Set the default editor to vim
   environment.variables.EDITOR = "vim";
+  # ADB
+  programs.adb.enable = true;
 
   # Completion for system packages for zsh: https://nix-community.github.io/home-manager/options.xhtml#opt-programs.zsh.enableCompletion
   environment.pathsToLink = ["/share/zsh"];
