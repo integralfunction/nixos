@@ -21,7 +21,7 @@ in {
   # Packages that should be installed to the user profile.
   home.packages = with pkgs; [
     # TODO decide if this is needed
-    git-credential-manager
+    # git-credential-manager
     # TODO build youtube music: https://github.com/th-ch/youtube-music?tab=readme-ov-file#build
     firefox-bin
     gnome.nautilus
@@ -148,17 +148,18 @@ in {
   };
 
   # starship - an customizable prompt for any shell
-  programs.starship = {
-    enable = true;
-    # custom settings
-    settings = {
-      add_newline = false;
-      aws.disabled = true;
-      gcloud.disabled = true;
-      line_break.disabled = true;
-    };
-  };
+  # programs.starship = {
+  #   enable = true;
+  #   # custom settings
+  #   settings = {
+  #     add_newline = false;
+  #     aws.disabled = true;
+  #     gcloud.disabled = true;
+  #     line_break.disabled = true;
+  #   };
+  # };
 
+  #TODO configure term
   programs.kitty = {
     enable = true;
   };
