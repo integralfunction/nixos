@@ -107,7 +107,7 @@
   users.users.river = {
     isNormalUser = true;
     description = "river";
-    # shell = pkgs.zsh;
+    shell = pkgs.zsh;
     extraGroups = ["networkmanager" "wheel" "adbusers"];
   };
 

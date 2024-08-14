@@ -8,7 +8,7 @@
 in {
   imports = [
     ./modules/pcloud.nix
-    ./modules/software-dev.nix
+    # ./modules/software-dev.nix
   ];
   home.username = "river";
   home.homeDirectory = "/home/river";
