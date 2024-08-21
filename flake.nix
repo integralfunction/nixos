@@ -2,6 +2,8 @@
   description = "NixOS configuration";
 
   inputs = {
+    nixvim.url = "github:dc-tec/nixvim";
+    neve.url = "github:redyf/Neve";
     nixpkgs.url = "github:nixos/nixpkgs/nixos-24.05";
     # home-manager, used for managing user configuration
     home-manager = {
@@ -15,7 +17,10 @@
   };
 
   outputs = inputs @ {
+    self,
     nixpkgs,
+    nixvim,
+    neve,
     home-manager,
     ...
   }: {
@@ -35,7 +40,7 @@
 
             home-manager.users.river = import ./home.nix;
 
-            # Optionally, use home-manager.extraSpecialArgs to pass arguments to home.nix
+            home-manager.extraSpecialArgs = {inherit inputs;};
           }
         ];
       };

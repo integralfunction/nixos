@@ -30,21 +30,33 @@
     options = ["rw" "uid=1000"];
   };
 
-  # Perform garbage collection weekly to maintain low disk usage
-  nix.gc = {
-    automatic = true;
-    dates = "weekly";
-    options = "--delete-older-than 1w";
+  # Nix settings
+  nix = {
+    # Perform garbage collection weekly to maintain low disk usage
+    gc = {
+      automatic = true;
+      dates = "weekly";
+      options = "--delete-older-than 1w";
+    };
+    settings = {
+      # Enable the Flakes feature and the accompanying new nix command-line tool
+      experimental-features = ["nix-command" "flakes"];
+      # Optimize storage
+      # https://nixos.org/manual/nix/stable/command-ref/conf-file.html#conf-auto-optimise-store
+      auto-optimise-store = true;
+    };
   };
-  # Optimize storage
-  # https://nixos.org/manual/nix/stable/command-ref/conf-file.html#conf-auto-optimise-store
-  nix.settings.auto-optimise-store = true;
 
-  # Hostname
-  networking.hostName = "nixos";
+  # Allow unfree packages
+  nixpkgs.config.allowUnfree = true;
 
-  # Enable networking
-  networking.networkmanager.enable = true;
+  # Networking
+  networking = {
+    # Hostname
+    hostName = "nixos";
+    # Wifi
+    networkmanager.enable = true;
+  };
 
   # Set your time zone.
   time.timeZone = "America/New_York";
@@ -53,26 +65,23 @@
   i18n.defaultLocale = "en_US.UTF-8";
 
   # Is this necessary?
-  i18n.extraLocaleSettings = {
-    LC_ADDRESS = "en_US.UTF-8";
-    LC_IDENTIFICATION = "en_US.UTF-8";
-    LC_MEASUREMENT = "en_US.UTF-8";
-    LC_MONETARY = "en_US.UTF-8";
-    LC_NAME = "en_US.UTF-8";
-    LC_NUMERIC = "en_US.UTF-8";
-    LC_PAPER = "en_US.UTF-8";
-    LC_TELEPHONE = "en_US.UTF-8";
-    LC_TIME = "en_US.UTF-8";
-  };
+  # i18n.extraLocaleSettings = {
+  #   LC_ADDRESS = "en_US.UTF-8";
+  #   LC_IDENTIFICATION = "en_US.UTF-8";
+  #   LC_MEASUREMENT = "en_US.UTF-8";
+  #   LC_MONETARY = "en_US.UTF-8";
+  #   LC_NAME = "en_US.UTF-8";
+  #   LC_NUMERIC = "en_US.UTF-8";
+  #   LC_PAPER = "en_US.UTF-8";
+  #   LC_TELEPHONE = "en_US.UTF-8";
+  #   LC_TIME = "en_US.UTF-8";
+  # };
 
-  # Enable the X11 windowing system.
+  # Xorg / X11
   services.xserver = {
     enable = true;
     desktopManager.xfce.enable = true;
-  };
-
-  # Configure keymap in X11
-  services.xserver = {
+    # Configure keymap in X11
     xkb = {
       layout = "us";
       variant = "";
@@ -111,6 +120,7 @@
     extraGroups = ["networkmanager" "wheel" "adbusers"];
   };
 
+  # Display Manager
   services.displayManager = {
     sddm = {
       enable = true;
@@ -122,14 +132,7 @@
     # };
   };
 
-  # Allow unfree packages
-  nixpkgs.config.allowUnfree = true;
-
-  # Enable the Flakes feature and the accompanying new nix command-line tool
-  nix.settings.experimental-features = ["nix-command" "flakes"];
-
-  # List packages installed in system profile. To search, run:
-  # $ nix search wget
+  # System packages
   environment.systemPackages = with pkgs; [
     # archives
     zip
@@ -143,6 +146,11 @@
     ethtool
     pciutils # lspci
     usbutils # lsusb
+
+    lxqt.lxqt-openssh-askpass
+
+    # Audio
+    pavucontrol
 
     # system monitoring
     btop # replacement of htop/nmon
@@ -159,7 +167,6 @@
     nix-output-monitor
 
     # misc
-    # rclone
     file
     which
     tree
@@ -178,28 +185,45 @@
     curl
   ];
 
-  programs.hyprland.enable = true;
-
-  # Set the default editor to vim
   environment.variables.EDITOR = "vim";
-  # ADB
-  programs.adb.enable = true;
-
   # Completion for system packages for zsh: https://nix-community.github.io/home-manager/options.xhtml#opt-programs.zsh.enableCompletion
   environment.pathsToLink = ["/share/zsh"];
 
-  # Some programs need SUID wrappers, can be configured further or are
-  # started in user sessions.
-  programs.mtr.enable = true;
-  programs.gnupg.agent = {
-    enable = true;
-    enableSSHSupport = true;
+  programs = {
+    seahorse.enable = true;
+    hyprland.enable = true;
+    zsh.enable = true;
+    adb.enable = true;
+    # SUID wrappers ?
+    mtr.enable = true;
+    gnupg.agent = {
+      enable = true;
+      enableSSHSupport = true;
+    };
+    ssh = {
+      enableAskPassword = true;
+      askPassword = "${pkgs.lxqt.lxqt-openssh-askpass}/bin/lxqt-openssh-askpass";
+    };
+    nix-ld = {
+      enable = true;
+      libraries = with pkgs; [
+        stdenv.cc.cc
+        zlib
+        fuse3
+        icu
+        nss
+        openssl
+        expat
+      ];
+    };
   };
 
-  # List services that you want to enable:
-  services.gnome.gnome-keyring.enable = true;
-  # Enable the OpenSSH daemon.
-  services.openssh.enable = true;
+  services = {
+    gnome.gnome-keyring.enable = true;
+    openssh.enable = true;
+  };
+
+  security.polkit.enable = true;
 
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];

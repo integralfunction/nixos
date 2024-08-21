@@ -2,6 +2,7 @@
   lib,
   config,
   pkgs,
+  inputs,
   ...
 }: let
   inherit (lib) mapAttrsToList;
@@ -12,6 +13,11 @@ in {
   ];
   home.username = "river";
   home.homeDirectory = "/home/river";
+
+  home.sessionVariables = {
+    SSH_ASKPASS = "${pkgs.lxqt.lxqt-openssh-askpass}/bin/lxqt-openssh-askpass";
+    EDITOR = "nvim";
+  };
 
   # set cursor size and dpi for 4k monitor
   # xresources.properties = {
@@ -28,16 +34,25 @@ in {
     gnome.nautilus
     alejandra
     prismlauncher
-    neovim
-    ulauncher
     qpdfview
     obsidian
     mpv
     neofetch
     vesktop
     qbittorrent
+    # Neovim IDEs
+    # inputs.nixvim.packages.x86_64-linux.default
+    # inputs.neve.packages.${pkgs.system}.default
+
     # pcloud
     keepassxc
+
+    # Wayland specific
+    wofi # app launcher
+    grim # screenshot functionality
+    slurp # screenshot functionality
+    wl-clipboard # wl-copy and wl-paste for copy/paste from stdin / stdout
+    mako # notification system developed by swaywm maintainer
 
     yazi # terminal file manager
     ripgrep # recursively searches directories for a regex pattern
@@ -47,39 +62,12 @@ in {
     fzf # A command-line fuzzy finder
   ];
 
-  programs.vscode = {
-    enable = true;
-    extensions = with pkgs.vscode-extensions; [
-      # Themes
-      jdinhlife.gruvbox
-      # Nix
-      bbenoist.nix
-      kamadorueda.alejandra
-      # MD
-      yzhang.markdown-all-in-one
-      # Flutter
-      dart-code.flutter
-      # Misc
-      vscodevim.vim
-    ];
-  };
-
-  programs.obs-studio = {
-    enable = true;
-    # plugins = with pkgs.obs-studio-plugins; [
-    #   wlrobs
-    #   obs-backgroundremoval
-    #   obs-pipewire-audio-capture
-    # ];
-  };
-
+  # Hyprland (eww 🤮)
   wayland.windowManager.hyprland = {
     enable = true;
     package = pkgs.hyprland;
     xwayland.enable = true;
-    # Optional
-    # Whether to enable hyprland-session.target on hyprland startup
-    systemd.enable = false;
+    systemd.enable = true;
     settings = {
       env = mapAttrsToList (name: value: "${name},${toString value}") {
         NIXOS_OZONE_WL = "1";
@@ -94,7 +82,7 @@ in {
       "monitor" = "DP-3,1920x1080@144,0x0,1";
       "$mainMod" = "SUPER";
       "$fileManager" = "nautilus";
-      "$menu" = "ulauncher-toggle";
+      "$menu" = "wofi --show drun";
       bind = [
         "SUPER,Return,exec,kitty"
         "SUPER,M,exit,"
@@ -145,43 +133,69 @@ in {
     };
   };
 
+  # Sway
+  wayland.windowManager.sway = {
+    enable = true;
+    config = rec {
+      modifier = "Mod4";
+      # Use kitty as default terminal
+      terminal = "kitty";
+      startup = [
+        # Launch Firefox on start
+        {command = "firefox";}
+      ];
+    };
+  };
+
+  programs.vscode = {
+    enable = true;
+    extensions = with pkgs.vscode-extensions;
+      [
+        jdinhlife.gruvbox # Themes
+        bbenoist.nix # Nix
+        kamadorueda.alejandra # Nix
+        yzhang.markdown-all-in-one # Markdown
+        dart-code.flutter # Flutter
+        rust-lang.rust-analyzer # Rust
+        vscodevim.vim # Vim
+      ]
+      ++ pkgs.vscode-utils.extensionsFromVscodeMarketplace [
+        # To fetch sha256:
+        # nix-prefetch-url https://marketplace.visualstudio.com/_apis/public/gallery/publishers/tauri-apps/vsextensions/tauri-vscode/0.2.6/vspackage
+        # Tauri
+        {
+          name = "tauri-vscode";
+          publisher = "tauri-apps";
+          version = "0.2.6";
+          sha256 = "03nfyiac562kpndy90j7vc49njmf81rhdyhjk9bxz0llx4ap3lrv";
+        }
+      ];
+  };
+  programs.neovim = {
+    enable = true;
+    extraConfig = ''
+      set number relativenumber
+    '';
+  };
+  programs.obs-studio = {
+    enable = true;
+    # plugins = with pkgs.obs-studio-plugins; [
+    #   wlrobs
+    #   obs-backgroundremoval
+    #   obs-pipewire-audio-capture
+    # ];
+  };
   programs.git = {
     enable = true;
     userName = "integralfunction";
     userEmail = "83551660+integralfunction@users.noreply.github.com";
   };
 
-  # starship - an customizable prompt for any shell
-  # programs.starship = {
-  #   enable = true;
-  #   # custom settings
-  #   settings = {
-  #     add_newline = false;
-  #     aws.disabled = true;
-  #     gcloud.disabled = true;
-  #     line_break.disabled = true;
-  #   };
-  # };
-
   #TODO configure term
   programs.kitty = {
     enable = true;
   };
 
-  #TODO Change to zsh
-  # programs.bash = {
-  #   enable = true;
-  #   enableCompletion = true;
-  #   # TODO add your custom bashrc here
-  #   # bashrcExtra = ''
-  #   #  export PATH="$PATH:$HOME/bin:$HOME/.local/bin:$HOME/go/bin"
-  #   # '';
-
-  #   # set some aliases, feel free to add more or remove some
-  #   shellAliases = {
-  #     k = "kubectl";
-  #   };
-  # };
   programs.zsh = {
     enable = true;
     enableCompletion = true;
@@ -189,11 +203,17 @@ in {
     syntaxHighlighting.enable = true;
 
     shellAliases = {
-      ll = "ls -l";
-      nf = "neofetch";
-      update = "sudo nixos-rebuild switch";
+      # ls = "eza";
+      v = "nvim";
+      al = "alejandra .";
+      lout = "pkill -KILL -u river";
+      u = "git add . && sudo nixos-rebuild switch";
     };
-
+    oh-my-zsh = {
+      enable = true;
+      plugins = ["git"];
+      theme = "robbyrussell";
+    };
     history.size = 10000;
     history.ignoreAllDups = true;
     history.path = "$HOME/.zsh_history";
