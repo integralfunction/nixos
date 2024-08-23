@@ -7,6 +7,8 @@
   imports = [
     # Include the results of the hardware scan.
     ./hardware-configuration.nix
+    ./modules/no-middle-click-paste.nix
+    # WM's have to be declared not in home-manager because display manager is usually system level
   ];
 
   # Bootloader.
@@ -48,7 +50,9 @@
   };
 
   # Allow unfree packages
-  nixpkgs.config.allowUnfree = true;
+  nixpkgs = {
+    config.allowUnfree = true;
+  };
 
   # Networking
   networking = {
@@ -113,11 +117,12 @@
   };
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
+  users.defaultUserShell = pkgs.zsh;
   users.users.river = {
     isNormalUser = true;
     description = "river";
     shell = pkgs.zsh;
-    extraGroups = ["networkmanager" "wheel" "adbusers"];
+    extraGroups = ["networkmanager" "wheel" "adbusers" "input"];
   };
 
   # Display Manager
@@ -185,13 +190,19 @@
     curl
   ];
 
-  environment.variables.EDITOR = "vim";
+  environment.variables = {
+    EDITOR = "vim";
+    XCURSOR_SISE = "16";
+  };
   # Completion for system packages for zsh: https://nix-community.github.io/home-manager/options.xhtml#opt-programs.zsh.enableCompletion
   environment.pathsToLink = ["/share/zsh"];
 
   programs = {
     seahorse.enable = true;
-    hyprland.enable = true;
+    hyprland = {
+      enable = true;
+      portalPackage = pkgs.xdg-desktop-portal-hyprland;
+    };
     zsh.enable = true;
     adb.enable = true;
     # SUID wrappers ?
@@ -216,6 +227,36 @@
         expat
       ];
     };
+  };
+
+  fonts = {
+    enableDefaultPackages = true;
+    fontDir.enable = true; # ls /run/current-system/sw/share/X11/fonts/
+    fontconfig = {
+      enable = true;
+      cache32Bit = true;
+      hinting.enable = true;
+      antialias = true;
+      defaultFonts = {
+        monospace = ["Source Code Pro"];
+        sansSerif = ["Roboto"];
+        serif = ["Roboto Slab"];
+      };
+    };
+
+    packages = with pkgs; [
+      terminus_font
+      source-sans-pro
+      roboto
+      cozette
+      # https://github.com/NixOS/nixpkgs/blob/master/pkgs/data/fonts/nerdfonts/shas.nix
+      (nerdfonts.override {fonts = ["Iosevka" "IBMPlexMono"];})
+
+      siji # https://github.com/stark/siji
+      ipafont # display jap symbols like シートベルツ in polybar
+      noto-fonts-emoji # emoji
+      source-code-pro
+    ];
   };
 
   services = {

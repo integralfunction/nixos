@@ -6,10 +6,10 @@
   ...
 }: let
   inherit (lib) mapAttrsToList;
+  confFile = builtins.readFile ./modules/niri/config.kdl;
 in {
   imports = [
     ./modules/pcloud.nix
-    # ./modules/software-dev.nix
   ];
   home.username = "river";
   home.homeDirectory = "/home/river";
@@ -17,14 +17,28 @@ in {
   home.sessionVariables = {
     SSH_ASKPASS = "${pkgs.lxqt.lxqt-openssh-askpass}/bin/lxqt-openssh-askpass";
     EDITOR = "nvim";
+    ELECTRON_OZONE_PLATFORM_HINT = "auto";
+    NIXOS_OZONE_WL = 1;
   };
 
   # set cursor size and dpi for 4k monitor
-  # xresources.properties = {
-  # "Xcursor.size" = 16;
-  # "Xft.dpi" = 172;
-  # };
+  xresources.properties = {
+    "Xcursor.size" = 9;
+    "Xft.dpi" = 96;
+  };
+  home.pointerCursor = {
+package = pkgs.vanilla-dmz;
+  name = "Vanilla-DMZ";
+  size = 4;
+  };
 
+  gtk = {
+    enable = true;
+    theme = {
+      name = "Materia-dark";
+      package = pkgs.materia-theme;
+    };
+  };
   # Packages that should be installed to the user profile.
   home.packages = with pkgs; [
     # TODO decide if this is needed
@@ -33,7 +47,9 @@ in {
     firefox-bin
     gnome.nautilus
     alejandra
-    prismlauncher
+    # prismlauncher
+    (prismlauncher.override {withWaylandGLFW = true;})
+    xorg.xeyes
     qpdfview
     obsidian
     mpv
@@ -41,8 +57,12 @@ in {
     vesktop
     qbittorrent
     # Neovim IDEs
-    # inputs.nixvim.packages.x86_64-linux.default
-    # inputs.neve.packages.${pkgs.system}.default
+    lunarvim
+    # vimPlugins.LazyVim
+
+    #TODO Move all software-dev stuff into software-dev.nix file
+    # rustc
+    # cargo
 
     # pcloud
     keepassxc
@@ -52,7 +72,10 @@ in {
     grim # screenshot functionality
     slurp # screenshot functionality
     wl-clipboard # wl-copy and wl-paste for copy/paste from stdin / stdout
+    evsieve
+    xsel
     mako # notification system developed by swaywm maintainer
+    xdg-desktop-portal-hyprland
 
     yazi # terminal file manager
     ripgrep # recursively searches directories for a regex pattern
@@ -61,6 +84,10 @@ in {
     eza # A modern replacement for ‘ls’
     fzf # A command-line fuzzy finder
   ];
+
+  programs.niri = {
+    config = confFile;
+  };
 
   # Hyprland (eww 🤮)
   wayland.windowManager.hyprland = {
@@ -84,6 +111,7 @@ in {
       "$fileManager" = "nautilus";
       "$menu" = "wofi --show drun";
       bind = [
+        '',Print,exec,${pkgs.grim}/bin/grim -g "$(${pkgs.slurp}/bin/slurp)" - | ${pkgs.wl-clipboard}/bin/wl-copy -t image/png''
         "SUPER,Return,exec,kitty"
         "SUPER,M,exit,"
         "$mainMod, W, killactive,"
@@ -133,19 +161,88 @@ in {
     };
   };
 
-  # Sway
-  wayland.windowManager.sway = {
-    enable = true;
-    config = rec {
-      modifier = "Mod4";
-      # Use kitty as default terminal
-      terminal = "kitty";
-      startup = [
-        # Launch Firefox on start
-        {command = "firefox";}
-      ];
-    };
-  };
+  # Sway (Nvidia GPU 😞)
+  # wayland.windowManager.sway = {
+  #   enable = true;
+  #   config = rec {
+  #     modifier = "Mod4";
+  #     # Use kitty as default terminal
+  #     terminal = "kitty";
+  #     startup = [
+  #       # Launch Firefox on start
+  #       {command = "firefox";}
+  #     ];
+  #   };
+  # };
+
+  # programs.niri = {
+  #   enable = true;
+  #   settings = {
+  #     binds = with config.lib.niri.actions; let
+  #       sh = spawn "sh" "-c";
+  #     in {
+  #       # First Key Row
+  #       "Super+R".action = spawn "${pkgs.wofi}/bin/wofi" "--show" "drun";
+  #       "Super+Return".action = spawn "${pkgs.kitty}/bin/kitty";
+  #       "Super+E".action = spawn "${pkgs.firefox-bin}/bin/firefox";
+  #       "Super+W".action = close-window;
+
+  #       # Quit Niri
+  #       "Super+Shift+Q".action = quit;
+
+  #       "Super+Slash".action = show-hotkey-overlay;
+
+  #       "Print".action = screenshot;
+
+  #       "Super+H".action = focus-column-left;
+  #       "Super+J".action = focus-window-down;
+  #       "Super+K".action = focus-window-up;
+  #       "Super+L".action = focus-column-right;
+
+  # "Super+Ctrl+H".action = move-column-left;
+  # "Super+Ctrl+J".action = move-window-down;
+  # "Super+Ctrl+K".action = move-window-up;
+  # "Super+Ctrl+L".action = move-column-right;
+
+  # "Super+Comma".action = focus-column-first;
+  # "Super+Period".action = focus-column-last;
+  # "Super+Ctrl+Comma".action = move-column-to-first;
+  # "Super+Ctrl+Period".action = move-column-to-last;
+
+  # "Super+Shift+H".action = focus-monitor-left;
+  # "Super+Shift+J".action = focus-monitor-down;
+  # "Super+Shift+K".action = focus-monitor-up;
+  # "Super+Shift+L".action = focus-monitor-right;
+
+  # "Super+U".action = focus-workspace-down;
+  # "Super+I".action = focus-workspace-up;
+
+  # "Super+WheelScrollDown".action = focus-workspace-down;
+  # "Super+WheelScrollUp".action = focus-workspace-up;
+  # "Super+WheelScrollDown".cooldown-ms = 150;
+  # "Super+WheelScrollUp".cooldown-ms = 150;
+  # "Super+Minus".action = set-column-width "-10%";
+  # "Super+Equal".action = set-column-width "+10%";
+
+  #       "Super+Shift+Minus".action = set-window-height "-10%";
+  #       "Super+Shift+Equal".action = set-window-height "+10%";
+
+  #       # Workspackes
+  #       "Super+1".action = focus-workspace 1;
+  #       "Super+2".action = focus-workspace 2;
+  #       "Super+3".action = focus-workspace 3;
+
+  #       "Super+Ctrl+1".action = move-window-to-workspace 1;
+  #       "Super+Ctrl+2".action = move-window-to-workspace 2;
+  #       "Super+Ctrl+3".action = move-window-to-workspace 3;
+
+  #       # Special Keys
+  #       "XF86AudioRaiseVolume".action = sh "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.1+";
+  #       "XF86AudioLowerVolume".action = sh "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.1-";
+  #       "XF86AudioMute".action = sh "wpctl" "set-mute" "@DEFAULT_AUDIO_SINK@" "toggle";
+  #     };
+  #   };
+  # };
 
   programs.vscode = {
     enable = true;
@@ -192,8 +289,24 @@ in {
   };
 
   #TODO configure term
+  # programs.kitty = {
+  #   enable = true;
+  # };
   programs.kitty = {
     enable = true;
+    font = {
+      name = "Iosevka Nerd Font Mono";
+      size = 12;
+    };
+    keybindings = {
+      "f5" = "load_config_file";
+      "ctrl+shift+c" = "copy_to_clipboard";
+      "ctrl+shift+v" = "paste_from_clipboard";
+    };
+    settings = {
+      enable_audio_bell = "no";
+      clipboard_control = "write-clipboard write-primary read-clipboard-ask read-primary-ask";
+    };
   };
 
   programs.zsh = {
@@ -204,10 +317,11 @@ in {
 
     shellAliases = {
       # ls = "eza";
-      v = "nvim";
+      v = "lvim";
       al = "alejandra .";
       lout = "pkill -KILL -u river";
       u = "git add . && sudo nixos-rebuild switch";
+      uf = "git add . && nix flake update && sudo nixos-rebuild switch";
     };
     oh-my-zsh = {
       enable = true;

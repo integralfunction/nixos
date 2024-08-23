@@ -2,8 +2,7 @@
   description = "NixOS configuration";
 
   inputs = {
-    nixvim.url = "github:dc-tec/nixvim";
-    neve.url = "github:redyf/Neve";
+    niri.url = "github:sodiboo/niri-flake";
     nixpkgs.url = "github:nixos/nixpkgs/nixos-24.05";
     # home-manager, used for managing user configuration
     home-manager = {
@@ -18,9 +17,8 @@
 
   outputs = inputs @ {
     self,
+    niri,
     nixpkgs,
-    nixvim,
-    neve,
     home-manager,
     ...
   }: {
@@ -30,7 +28,16 @@
         system = "x86_64-linux";
         modules = [
           ./configuration.nix
-
+          # Niri Unstable
+          niri.nixosModules.niri
+          # {
+          #   programs.niri.enable = true;
+          # }
+          ({pkgs, ...}: {
+            programs.niri.enable = true;
+          nixpkgs.overlays = [niri.overlays.niri];
+          programs.niri.package = pkgs.niri-unstable;
+        })
           # make home-manager as a module of nixos
           # so that home-manager configuration will be deployed automatically when executing `nixos-rebuild switch`
           home-manager.nixosModules.home-manager
