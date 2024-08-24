@@ -27,9 +27,9 @@ in {
     "Xft.dpi" = 96;
   };
   home.pointerCursor = {
-package = pkgs.vanilla-dmz;
-  name = "Vanilla-DMZ";
-  size = 4;
+    package = pkgs.vanilla-dmz;
+    name = "Vanilla-DMZ";
+    size = 4;
   };
 
   gtk = {
@@ -45,6 +45,8 @@ package = pkgs.vanilla-dmz;
     # git-credential-manager
     # TODO build youtube music: https://github.com/th-ch/youtube-music?tab=readme-ov-file#build
     firefox-bin
+    inputs.zen-browser.packages."${system}".default
+
     gnome.nautilus
     alejandra
     # prismlauncher
@@ -65,6 +67,7 @@ package = pkgs.vanilla-dmz;
     # cargo
 
     # pcloud
+
     keepassxc
 
     # Wayland specific
@@ -76,6 +79,7 @@ package = pkgs.vanilla-dmz;
     xsel
     mako # notification system developed by swaywm maintainer
     xdg-desktop-portal-hyprland
+    cage # run xwayland apps with cage -- /path/to/application
 
     yazi # terminal file manager
     ripgrep # recursively searches directories for a regex pattern
@@ -320,6 +324,7 @@ package = pkgs.vanilla-dmz;
       v = "lvim";
       al = "alejandra .";
       lout = "pkill -KILL -u river";
+      cr = "cargo run";
       u = "git add . && sudo nixos-rebuild switch";
       uf = "git add . && nix flake update && sudo nixos-rebuild switch";
     };

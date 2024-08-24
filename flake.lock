@@ -593,11 +593,11 @@
         "xwayland-satellite": "xwayland-satellite"
       },
       "locked": {
-        "lastModified": 1724421423,
-        "narHash": "sha256-D1enprnXUnC78xnselEtDlHurcXd/YMyvVaklLHLp58=",
+        "lastModified": 1724432354,
+        "narHash": "sha256-aT0aBk1VjmTEJEaE7mfRZCC2xRY6KD8GlB/MSl+iTtA=",
         "owner": "sodiboo",
         "repo": "niri-flake",
-        "rev": "75ddfbd75660854db7630932b7562854f52df0d3",
+        "rev": "9200d752805a6c08bf243fb2a38d20f541c72f13",
         "type": "github"
       },
       "original": {
@@ -626,11 +626,11 @@
     "niri-unstable": {
       "flake": false,
       "locked": {
-        "lastModified": 1724417581,
-        "narHash": "sha256-QVRm4L8rYlFaQkrsT7b5XWdlghbgL3HvrdkUNU+2Los=",
+        "lastModified": 1724429358,
+        "narHash": "sha256-QTDUuzp7nHGVUK4ZW5S4Y4Q+D6yH9/VLbUn2eL9I/yM=",
         "owner": "YaLTeR",
         "repo": "niri",
-        "rev": "a4f1caab1d1274083f67f7cb110feac0cf7a6f93",
+        "rev": "28a8a9ace2804bd5e9c9c9d74761d5f0b4034f98",
         "type": "github"
       },
       "original": {
@@ -835,6 +835,22 @@
         "type": "github"
       }
     },
+    "nixpkgs_9": {
+      "locked": {
+        "lastModified": 1724224976,
+        "narHash": "sha256-Z/ELQhrSd7bMzTO8r7NZgi9g5emh+aRKoCdaAv5fiO0=",
+        "owner": "nixos",
+        "repo": "nixpkgs",
+        "rev": "c374d94f1536013ca8e92341b540eba4c22f9c62",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nixos",
+        "ref": "nixos-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
     "pre-commit-hooks": {
       "inputs": {
         "flake-compat": [
@@ -948,7 +964,8 @@
       "inputs": {
         "home-manager": "home-manager",
         "niri": "niri",
-        "nixpkgs": "nixpkgs_8"
+        "nixpkgs": "nixpkgs_8",
+        "zen-browser": "zen-browser"
       }
     },
     "systems": {
@@ -1039,6 +1056,24 @@
       "original": {
         "owner": "Supreeeme",
         "repo": "xwayland-satellite",
+        "type": "github"
+      }
+    },
+    "zen-browser": {
+      "inputs": {
+        "nixpkgs": "nixpkgs_9"
+      },
+      "locked": {
+        "lastModified": 1724347856,
+        "narHash": "sha256-OQxWHztlw5hSJYCRWoJ98+bgqWinRSTR0KZos7aq2h8=",
+        "owner": "MarceColl",
+        "repo": "zen-browser-flake",
+        "rev": "96dffb45b36141261e97a8f83438e4c88911fefa",
+        "type": "github"
+      },
+      "original": {
+        "owner": "MarceColl",
+        "repo": "zen-browser-flake",
         "type": "github"
       }
     }

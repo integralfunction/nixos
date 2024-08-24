@@ -3,7 +3,11 @@
   pkgs,
   inputs,
   ...
-}: {
+}: let
+  caches = {
+    "https://niri.cachix.org" = "niri.cachix.org-1:Wv0OmO7PsuocRKzfDoJ3mulSl7Z6oezYhGhR+3W2964=";
+  };
+in {
   imports = [
     # Include the results of the hardware scan.
     ./hardware-configuration.nix
@@ -46,6 +50,8 @@
       # Optimize storage
       # https://nixos.org/manual/nix/stable/command-ref/conf-file.html#conf-auto-optimise-store
       auto-optimise-store = true;
+      substituters = builtins.attrNames caches;
+      trusted-public-keys = builtins.attrValues caches;
     };
   };
 

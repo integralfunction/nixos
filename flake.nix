@@ -3,6 +3,7 @@
 
   inputs = {
     niri.url = "github:sodiboo/niri-flake";
+    zen-browser.url = "github:MarceColl/zen-browser-flake";
     nixpkgs.url = "github:nixos/nixpkgs/nixos-24.05";
     # home-manager, used for managing user configuration
     home-manager = {
@@ -35,9 +36,9 @@
           # }
           ({pkgs, ...}: {
             programs.niri.enable = true;
-          nixpkgs.overlays = [niri.overlays.niri];
-          programs.niri.package = pkgs.niri-unstable;
-        })
+            nixpkgs.overlays = [niri.overlays.niri];
+            programs.niri.package = pkgs.niri-unstable;
+          })
           # make home-manager as a module of nixos
           # so that home-manager configuration will be deployed automatically when executing `nixos-rebuild switch`
           home-manager.nixosModules.home-manager
