@@ -2,12 +2,23 @@
   description = "NixOS configuration";
 
   inputs = {
+    # nixpkgs.url = "github:nixos/nixpkgs/nixos-24.05";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+
+    # Wayland window manager
     niri.url = "github:sodiboo/niri-flake";
-    zen-browser.url = "github:MarceColl/zen-browser-flake";
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-24.05";
+
+    # Secrets
+    agenix = {
+      url = "github:ryantm/agenix";
+      inputs.darwin.follows = "";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     # home-manager, used for managing user configuration
     home-manager = {
-      url = "github:nix-community/home-manager/release-24.05";
+      # url = "github:nix-community/home-manager/release-24.05";
+      url = "github:nix-community/home-manager";
       # The `follows` keyword in inputs is used for inheritance.
       # Here, `inputs.nixpkgs` of home-manager is kept consistent with
       # the `inputs.nixpkgs` of the current flake,
@@ -19,26 +30,27 @@
   outputs = inputs @ {
     self,
     niri,
+    agenix,
     nixpkgs,
     home-manager,
     ...
   }: {
     nixosConfigurations = {
       # Host name
-      nixos = nixpkgs.lib.nixosSystem {
+      soup = nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
         modules = [
-          ./configuration.nix
+          agenix.nixosModules.default
+
           # Niri Unstable
           niri.nixosModules.niri
-          # {
-          #   programs.niri.enable = true;
-          # }
           ({pkgs, ...}: {
             programs.niri.enable = true;
             nixpkgs.overlays = [niri.overlays.niri];
             programs.niri.package = pkgs.niri-unstable;
           })
+
+          ./configuration.nix
           # make home-manager as a module of nixos
           # so that home-manager configuration will be deployed automatically when executing `nixos-rebuild switch`
           home-manager.nixosModules.home-manager

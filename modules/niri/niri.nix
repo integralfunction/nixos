@@ -1,12 +1,12 @@
+# This file isn't being used.
+# TODO: Remove
 {
   lib,
   config,
   pkgs,
   inputs,
   ...
-}:
-# input@{ config, pkgs, lib, niri, ... }:
-let
+}: let
   confFile = builtins.readFile ./config.kdl;
 in {
   imports = [

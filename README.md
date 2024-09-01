@@ -1,6 +1,6 @@
 ﻿# TODO
-- [ ] Resolve issue with github asking for login on every `git push`
-- [ ] make first package for yt music
+- [ ] Set up secrets (?)
+- [ ] Fix disable middle click paste not working
 - [ ] add "make folder `/storage` after fresh install" in config (probably never)
     - if completed, remove `sudo mkdir /storage` step in instructions
 # NixOS

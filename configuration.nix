@@ -4,6 +4,7 @@
   inputs,
   ...
 }: let
+  # Cachix caches to not build every time
   caches = {
     "https://niri.cachix.org" = "niri.cachix.org-1:Wv0OmO7PsuocRKzfDoJ3mulSl7Z6oezYhGhR+3W2964=";
   };
@@ -12,7 +13,6 @@ in {
     # Include the results of the hardware scan.
     ./hardware-configuration.nix
     ./modules/no-middle-click-paste.nix
-    # WM's have to be declared not in home-manager because display manager is usually system level
   ];
 
   # Bootloader.
@@ -26,6 +26,12 @@ in {
       };
       efi.canTouchEfiVariables = true;
     };
+    # Use the HD-Audio sound card instead of the default one
+    extraModprobeConfig = ''
+      options snd slots=snd-hda-intel
+    '';
+    # Disable PC Speaker "audio card"
+    blacklistedKernelModules = ["snd_pcsp"];
   };
 
   # (Mount?) ntfs storage
@@ -50,6 +56,7 @@ in {
       # Optimize storage
       # https://nixos.org/manual/nix/stable/command-ref/conf-file.html#conf-auto-optimise-store
       auto-optimise-store = true;
+      # Cachix
       substituters = builtins.attrNames caches;
       trusted-public-keys = builtins.attrValues caches;
     };
@@ -63,7 +70,7 @@ in {
   # Networking
   networking = {
     # Hostname
-    hostName = "nixos";
+    hostName = "soup";
     # Wifi
     networkmanager.enable = true;
   };
@@ -74,19 +81,6 @@ in {
   # Select internationalisation properties.
   i18n.defaultLocale = "en_US.UTF-8";
 
-  # Is this necessary?
-  # i18n.extraLocaleSettings = {
-  #   LC_ADDRESS = "en_US.UTF-8";
-  #   LC_IDENTIFICATION = "en_US.UTF-8";
-  #   LC_MEASUREMENT = "en_US.UTF-8";
-  #   LC_MONETARY = "en_US.UTF-8";
-  #   LC_NAME = "en_US.UTF-8";
-  #   LC_NUMERIC = "en_US.UTF-8";
-  #   LC_PAPER = "en_US.UTF-8";
-  #   LC_TELEPHONE = "en_US.UTF-8";
-  #   LC_TIME = "en_US.UTF-8";
-  # };
-
   # Xorg / X11
   services.xserver = {
     enable = true;
@@ -96,30 +90,36 @@ in {
       layout = "us";
       variant = "";
     };
+    desktopManager.cde.enable = true;
   };
 
   # Nvidia GPU
   services.xserver.videoDrivers = ["nvidia"];
-  hardware.opengl.enable = true;
+  hardware.graphics.enable = true;
   hardware.nvidia = {
     package = config.boot.kernelPackages.nvidiaPackages.stable;
     modesetting.enable = true;
+    open = false;
   };
 
-  # Enable sound with pipewire.
+  # Sound
+  # ALSA: A low level kernel component for audio hardware support and control
+  # Pipewire: A sound server intended as a replacement for both PulseAudio and JACK
+  # Wireplumber: A powerful session and policy manager for PipeWire, it is the default modular session / policy manager for PipeWire in 24.05
+  # RTkit: RealtimeKit system service, used for real time audio or something like that
+  #
+  # To fix audio muted when plugging in headphones: go to alsamixer (provided by alsa-utils) and hit F6 and select HD-Audio Generic. Then scroll to the right with arrow keys until you see auto-mute option. Use up/down arrow keys to DISABLE it (it is enabled by default). Then you can change which one is used in pavucontrol output tab. The port line out is speakers and headphones is headphones
   hardware.pulseaudio.enable = false;
   security.rtkit.enable = true;
   services.pipewire = {
     enable = true;
-    alsa.enable = true;
-    alsa.support32Bit = true;
+    alsa = {
+      enable = true;
+      support32Bit = true;
+    };
     pulse.enable = true;
     # If you want to use JACK applications, uncomment this
     #jack.enable = true;
-
-    # use the example session manager (no others are packaged yet so this is enabled by default,
-    # no need to redefine it in your config for now)
-    #media-session.enable = true;
   };
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
@@ -162,6 +162,11 @@ in {
 
     # Audio
     pavucontrol
+    alsa-utils # provides alsamixer
+
+    # secrets
+    age
+    ssh-to-age
 
     # system monitoring
     btop # replacement of htop/nmon
@@ -203,6 +208,7 @@ in {
   # Completion for system packages for zsh: https://nix-community.github.io/home-manager/options.xhtml#opt-programs.zsh.enableCompletion
   environment.pathsToLink = ["/share/zsh"];
 
+  # Window managers have to be enabled system wide because the display manager doesn't run as your user, so it can't read your own user's home directory. It can only see system-wide files, and as such the sessions is can autodetect must be system-wide ones.
   programs = {
     seahorse.enable = true;
     hyprland = {
@@ -224,13 +230,59 @@ in {
     nix-ld = {
       enable = true;
       libraries = with pkgs; [
-        stdenv.cc.cc
-        zlib
+        alsa-lib
+        at-spi2-atk
+        at-spi2-core
+        atk
+        cairo
+        cups
+        curl
+        dbus
+        expat
+        fontconfig
+        freetype
         fuse3
+        gdk-pixbuf
+        glib
+        gtk3
         icu
+        libGL
+        libappindicator-gtk3
+        libdrm
+        libglvnd
+        libnotify
+        libpulseaudio
+        libunwind
+        libusb1
+        libuuid
+        libxkbcommon
+        libxml2
+        mesa
+        nspr
         nss
         openssl
-        expat
+        pango
+        pipewire
+        stdenv.cc.cc
+        systemd
+        vulkan-loader
+        xorg.libX11
+        xorg.libXScrnSaver
+        xorg.libXcomposite
+        xorg.libXcursor
+        xorg.libXdamage
+        xorg.libXext
+        xorg.libXfixes
+        xorg.libXi
+        xorg.libXrandr
+        xorg.libXrender
+        xorg.libXtst
+        xorg.libxcb
+        xorg.libxkbfile
+        xorg.libxshmfence
+        zlib
+        dpkg
+        fakeroot
       ];
     };
   };
@@ -241,13 +293,17 @@ in {
     fontconfig = {
       enable = true;
       cache32Bit = true;
-      hinting.enable = true;
-      antialias = true;
-      defaultFonts = {
-        monospace = ["Source Code Pro"];
-        sansSerif = ["Roboto"];
-        serif = ["Roboto Slab"];
+      hinting = {
+        enable = true;
+        style = "medium";
+        # autohint = true;
       };
+      antialias = true;
+      # defaultFonts = {
+      #   monospace = ["Source Code Pro"];
+      #   sansSerif = ["Roboto"];
+      #   serif = ["Roboto Slab"];
+      # };
     };
 
     packages = with pkgs; [
@@ -255,8 +311,7 @@ in {
       source-sans-pro
       roboto
       cozette
-      # https://github.com/NixOS/nixpkgs/blob/master/pkgs/data/fonts/nerdfonts/shas.nix
-      (nerdfonts.override {fonts = ["Iosevka" "IBMPlexMono"];})
+      (nerdfonts.override {fonts = ["FiraCode" "Iosevka" "IBMPlexMono"];})
 
       siji # https://github.com/stark/siji
       ipafont # display jap symbols like シートベルツ in polybar
@@ -278,11 +333,6 @@ in {
   # Or disable the firewall altogether.
   # networking.firewall.enable = false;
 
-  # This value determines the NixOS release from which the default
-  # settings for stateful data, like file locations and database versions
-  # on your system were taken. It‘s perfectly fine and recommended to leave
-  # this value at the release version of the first install of this system.
-  # Before changing this value read the documentation for this option
-  # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
-  system.stateVersion = "24.05"; # Did you read the comment?
+  # Never change this value
+  system.stateVersion = "24.05";
 }

@@ -6,6 +6,7 @@
   ...
 }: let
   inherit (lib) mapAttrsToList;
+  wallpaper_directory = "/storage/wallpapers/cyberpunk-neon-city-s0.jpg";
   confFile = builtins.readFile ./modules/niri/config.kdl;
 in {
   imports = [
@@ -22,64 +23,68 @@ in {
   };
 
   # set cursor size and dpi for 4k monitor
-  xresources.properties = {
-    "Xcursor.size" = 9;
-    "Xft.dpi" = 96;
-  };
+  # xresources.properties = {
+  #   "Xcursor.size" = 9;
+  #   "Xft.dpi" = 96;
+  # };
   home.pointerCursor = {
     package = pkgs.vanilla-dmz;
     name = "Vanilla-DMZ";
-    size = 4;
+    size = 14; # Doesn't affect size
   };
 
   gtk = {
     enable = true;
+    cursorTheme = {
+      package = pkgs.vanilla-dmz;
+      name = "Vanilla-DMZ";
+      size = 14;
+    };
     theme = {
-      name = "Materia-dark";
-      package = pkgs.materia-theme;
+      name = "Adwaita-dark";
+      # package = pkgs.materia-theme;
+      # package = pkgs.kanagawa-gtk-theme;
     };
   };
+
   # Packages that should be installed to the user profile.
   home.packages = with pkgs; [
-    # TODO decide if this is needed
-    # git-credential-manager
-    # TODO build youtube music: https://github.com/th-ch/youtube-music?tab=readme-ov-file#build
     firefox-bin
-    inputs.zen-browser.packages."${system}".default
-
-    gnome.nautilus
-    alejandra
-    # prismlauncher
+    youtube-music
+    themechanger
+    nautilus
+    dconf-editor
     (prismlauncher.override {withWaylandGLFW = true;})
-    xorg.xeyes
     qpdfview
     obsidian
     mpv
-    neofetch
     vesktop
     qbittorrent
-    # Neovim IDEs
+    keepassxc
     lunarvim
-    # vimPlugins.LazyVim
+    alejandra
 
-    #TODO Move all software-dev stuff into software-dev.nix file
-    # rustc
-    # cargo
+    gscreenshot
 
+    cantor
+    plots
+
+    # Use pCloud module fix until issue is fixed: https://discourse.nixos.org/t/pcloud-gives-segmentation-fault/31330/1
     # pcloud
 
-    keepassxc
-
     # Wayland specific
+    xorg.xeyes
     wofi # app launcher
-    grim # screenshot functionality
+    grim
+    swaybg # wallpapers
     slurp # screenshot functionality
     wl-clipboard # wl-copy and wl-paste for copy/paste from stdin / stdout
     evsieve
     xsel
     mako # notification system developed by swaywm maintainer
     xdg-desktop-portal-hyprland
-    cage # run xwayland apps with cage -- /path/to/application
+    # cage gamescope
+    xwayland-satellite
 
     yazi # terminal file manager
     ripgrep # recursively searches directories for a regex pattern
@@ -91,6 +96,10 @@ in {
 
   programs.niri = {
     config = confFile;
+    settings.spawn-at-startup = [
+      {command = ["xwayland-satellite"];}
+      {command = ["env" "DISPLAY=:1" "pcloud"];}
+    ];
   };
 
   # Hyprland (eww 🤮)
@@ -110,6 +119,13 @@ in {
       cursor = {
         no_hardware_cursors = true;
       };
+      animations = {
+        enabled = 0;
+      };
+      exec-once = [
+            "${pkgs.mako}/bin/mako"
+            "${pkgs.swaybg}/bin/swaybg --image ${wallpaper_directory} --mode fill"
+          ];
       "monitor" = "DP-3,1920x1080@144,0x0,1";
       "$mainMod" = "SUPER";
       "$fileManager" = "nautilus";
@@ -121,14 +137,15 @@ in {
         "$mainMod, W, killactive,"
         "$mainMod, E, exec, $fileManager"
         "$mainMod, V, togglefloating,"
-        "$mainMod, R, exec, $menu"
+        "$mainMod, Space, exec, $menu"
         "$mainMod, P, pseudo,"
         "$mainMod, J, togglesplit,"
+        "$mainMod, F, fullscreen"
 
-        "$mainMod, left, movefocus, l"
-        "$mainMod, right, movefocus, r"
-        "$mainMod, up, movefocus, u"
-        "$mainMod, down, movefocus, d"
+        "$mainMod, H, movefocus, l"
+        "$mainMod, L, movefocus, r"
+        "$mainMod, K, movefocus, u"
+        "$mainMod, J, movefocus, d"
 
         "$mainMod, 1, workspace, 1"
         "$mainMod, 2, workspace, 2"
@@ -136,10 +153,6 @@ in {
         "$mainMod, 4, workspace, 4"
         "$mainMod, 5, workspace, 5"
         "$mainMod, 6, workspace, 6"
-        "$mainMod, 7, workspace, 7"
-        "$mainMod, 8, workspace, 8"
-        "$mainMod, 9, workspace, 9"
-        "$mainMod, 0, workspace, 10"
 
         "$mainMod SHIFT, 1, movetoworkspace, 1"
         "$mainMod SHIFT, 2, movetoworkspace, 2"
@@ -147,13 +160,9 @@ in {
         "$mainMod SHIFT, 4, movetoworkspace, 4"
         "$mainMod SHIFT, 5, movetoworkspace, 5"
         "$mainMod SHIFT, 6, movetoworkspace, 6"
-        "$mainMod SHIFT, 7, movetoworkspace, 7"
-        "$mainMod SHIFT, 8, movetoworkspace, 8"
-        "$mainMod SHIFT, 9, movetoworkspace, 9"
-        "$mainMod SHIFT, 0, movetoworkspace, 10"
 
-        "$mainMod, S, togglespecialworkspace, magic"
-        "$mainMod SHIFT, S, movetoworkspace, special:magic"
+        # "$mainMod, S, togglespecialworkspace, magic"
+        # "$mainMod SHIFT, S, movetoworkspace, special:magic"
 
         "$mainMod, mouse_down, workspace, e+1"
         "$mainMod, mouse_up, workspace, e-1"
@@ -256,7 +265,9 @@ in {
         bbenoist.nix # Nix
         kamadorueda.alejandra # Nix
         yzhang.markdown-all-in-one # Markdown
+        tamasfe.even-better-toml # TOML
         dart-code.flutter # Flutter
+        svelte.svelte-vscode # Svelte
         rust-lang.rust-analyzer # Rust
         vscodevim.vim # Vim
       ]
@@ -292,15 +303,16 @@ in {
     userEmail = "83551660+integralfunction@users.noreply.github.com";
   };
 
-  #TODO configure term
-  # programs.kitty = {
-  #   enable = true;
-  # };
+  # Terminal
   programs.kitty = {
     enable = true;
+    # theme = "shadotheme";
+    theme = "Snazzy";
+    # theme = "moonlight";
+    # theme = "Gruvbox Material Dark Soft";
     font = {
-      name = "Iosevka Nerd Font Mono";
-      size = 12;
+      name = "FiraCode Nerd Font";
+      size = 14;
     };
     keybindings = {
       "f5" = "load_config_file";
@@ -309,6 +321,7 @@ in {
     };
     settings = {
       enable_audio_bell = "no";
+      window_padding_width = 14;
       clipboard_control = "write-clipboard write-primary read-clipboard-ask read-primary-ask";
     };
   };
@@ -325,6 +338,10 @@ in {
       al = "alejandra .";
       lout = "pkill -KILL -u river";
       cr = "cargo run";
+      # Nix aliases
+      nd = "nix develop";
+      # Git aliases
+      gs = "git status";
       u = "git add . && sudo nixos-rebuild switch";
       uf = "git add . && nix flake update && sudo nixos-rebuild switch";
     };
@@ -337,7 +354,45 @@ in {
     history.ignoreAllDups = true;
     history.path = "$HOME/.zsh_history";
   };
-
+  programs.starship = {
+    enable = true;
+    settings = {
+      add_newline = false;
+      format = "$nix_shell $hostname $directory$jobs$cmd_duration$character";
+      username = {
+        style_user = "bright-white bold";
+        style_root = "bright-red bold";
+        format = "$user";
+        show_always = true;
+      };
+      hostname = {
+        format = "[$hostname]($style)";
+        style = "bright-white bold";
+        ssh_only = false;
+      };
+      nix_shell = {
+        # symbol = "";
+        format = "[$name]($style)";
+        style = "bright-purple bold";
+      };
+      directory = {
+        read_only = "";
+        truncation_length = 0;
+        truncate_to_repo = false;
+      };
+      cmd_duration = {
+        format = "[$duration]($style) ";
+        style = "bright-blue";
+      };
+      jobs = {
+        style = "bright-green bold";
+      };
+      character = {
+        success_symbol = "[\\$](bright-green bold)";
+        error_symbol = "[\\$](bright-red bold)";
+      };
+    };
+  };
   # This value determines the home Manager release that your
   # configuration is compatible with. This helps avoid breakage
   # when a new home Manager release introduces backwards

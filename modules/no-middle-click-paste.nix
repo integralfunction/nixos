@@ -3,7 +3,7 @@
   username = "river";
   mousePath = "/dev/input/by-path/pci-0000:08:00.3-usb-0:4.1:1.0-event-mouse"; # you have to find this on your own in /dev/input/by-path via experimentation
 in {
-  systemd.user.services.no-middle-click-paste = {
+  systemd.services.no-middle-click-paste = {
     enable = true;
     description = "Clear primary clipboard on middle click";
     serviceConfig.PassEnvironment = "DISPLAY";
