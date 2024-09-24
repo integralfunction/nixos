@@ -8,10 +8,8 @@
     # Wayland window manager
     niri.url = "github:sodiboo/niri-flake";
 
-    # Secrets
-    agenix = {
-      url = "github:ryantm/agenix";
-      inputs.darwin.follows = "";
+    nixos-cosmic = {
+      url = "github:lilyinstarlight/nixos-cosmic";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -30,8 +28,8 @@
   outputs = inputs @ {
     self,
     niri,
-    agenix,
     nixpkgs,
+    nixos-cosmic,
     home-manager,
     ...
   }: {
@@ -40,8 +38,6 @@
       soup = nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
         modules = [
-          agenix.nixosModules.default
-
           # Niri Unstable
           niri.nixosModules.niri
           ({pkgs, ...}: {
@@ -49,6 +45,8 @@
             nixpkgs.overlays = [niri.overlays.niri];
             programs.niri.package = pkgs.niri-unstable;
           })
+
+          nixos-cosmic.nixosModules.default
 
           ./configuration.nix
           # make home-manager as a module of nixos

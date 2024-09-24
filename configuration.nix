@@ -1,28 +1,39 @@
 {
   config,
   pkgs,
+  lib,
   inputs,
   ...
 }: let
   # Cachix caches to not build every time
   caches = {
     "https://niri.cachix.org" = "niri.cachix.org-1:Wv0OmO7PsuocRKzfDoJ3mulSl7Z6oezYhGhR+3W2964=";
+    "https://cosmic.cachix.org/" = "cosmic.cachix.org-1:Dya9IyXD4xdBehWjrkPv6rtxpmMdRel02smYzA85dPE=";
   };
 in {
   imports = [
     # Include the results of the hardware scan.
     ./hardware-configuration.nix
-    ./modules/no-middle-click-paste.nix
+    # ./modules/no-middle-click-paste.nix # cant get this to work
   ];
 
   # Bootloader.
   boot = {
     supportedFilesystems = ["ntfs"];
     loader = {
-      systemd-boot = {
+      # systemd-boot = {
+      #   enable = true;
+      #   # Limit the number of generations to keep
+      #   configurationLimit = 10;
+      # };
+      grub = {
         enable = true;
+        device = "nodev";
+        efiSupport = true; # append entries for other OSs detected by os-prober.
+        useOSProber = true;
         # Limit the number of generations to keep
         configurationLimit = 10;
+        # splashImage = ./autism.jpg; # the autism
       };
       efi.canTouchEfiVariables = true;
     };
@@ -81,18 +92,34 @@ in {
   # Select internationalisation properties.
   i18n.defaultLocale = "en_US.UTF-8";
 
-  # Xorg / X11
-  services.xserver = {
-    enable = true;
-    desktopManager.xfce.enable = true;
-    # Configure keymap in X11
-    xkb = {
-      layout = "us";
-      variant = "";
+  # Services
+  services = {
+    # Desktop Managers
+    desktopManager = {
+      cosmic.enable = true;
     };
-    desktopManager.cde.enable = true;
+    # Display Managers
+    displayManager = {
+      cosmic-greeter.enable = true;
+      sddm = {
+        enable = true;
+      };
+      # Enable automatic login for the user.
+      # autoLogin = {
+      #   enable = true;
+      #   user = "river";
+      # };
+    };
+    xserver = {
+      enable = true;
+      # Configure keymap in X11
+      xkb = {
+        layout = "us";
+        variant = "";
+      };
+      # desktopManager.cde.enable = true;
+    };
   };
-
   # Nvidia GPU
   services.xserver.videoDrivers = ["nvidia"];
   hardware.graphics.enable = true;
@@ -129,18 +156,6 @@ in {
     description = "river";
     shell = pkgs.zsh;
     extraGroups = ["networkmanager" "wheel" "adbusers" "input"];
-  };
-
-  # Display Manager
-  services.displayManager = {
-    sddm = {
-      enable = true;
-    };
-    # Enable automatic login for the user.
-    # autoLogin = {
-    #   enable = true;
-    #   user = "river";
-    # };
   };
 
   # System packages
@@ -211,18 +226,18 @@ in {
   # Window managers have to be enabled system wide because the display manager doesn't run as your user, so it can't read your own user's home directory. It can only see system-wide files, and as such the sessions is can autodetect must be system-wide ones.
   programs = {
     seahorse.enable = true;
-    hyprland = {
-      enable = true;
-      portalPackage = pkgs.xdg-desktop-portal-hyprland;
-    };
+    # hyprland = {
+    #   enable = true;
+    #   portalPackage = pkgs.xdg-desktop-portal-hyprland;
+    # };
     zsh.enable = true;
     adb.enable = true;
     # SUID wrappers ?
     mtr.enable = true;
-    gnupg.agent = {
-      enable = true;
-      enableSSHSupport = true;
-    };
+    # gnupg.agent = {
+    #   enable = true;
+    #   enableSSHSupport = true;
+    # };
     ssh = {
       enableAskPassword = true;
       askPassword = "${pkgs.lxqt.lxqt-openssh-askpass}/bin/lxqt-openssh-askpass";

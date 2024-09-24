@@ -8,6 +8,44 @@
   inherit (lib) mapAttrsToList;
   wallpaper_directory = "/storage/wallpapers/cyberpunk-neon-city-s0.jpg";
   confFile = builtins.readFile ./modules/niri/config.kdl;
+  tex = pkgs.texlive.combine {
+    inherit
+      (pkgs.texlive)
+      scheme-medium
+      asymptote
+      wrapfig
+      amsmath
+      ulem
+      hyperref
+      capt-of
+      latexmk
+      biber
+      xpatch
+      tkz-graph
+      tikz-cd
+      xcolor
+      todonotes
+      mdframed
+      mathtools
+      braket
+      multirow
+      prerex
+      cleveref
+      wasysym
+      stmaryrd
+      microtype
+      relsize
+      answers
+      etoolbox
+      minitoc
+      thmtools
+      zref
+      needspace
+      biblatex
+      xypic
+      enumitem
+      ;
+  };
 in {
   imports = [
     ./modules/pcloud.nix
@@ -49,26 +87,37 @@ in {
 
   # Packages that should be installed to the user profile.
   home.packages = with pkgs; [
+    # General
     firefox-bin
     youtube-music
-    themechanger
+    vesktop
+    mpv
+    qbittorrent
+    keepassxc # i love
+    obsidian
+
+    # gnome related
+    gscreenshot
     nautilus
     dconf-editor
-    (prismlauncher.override {withWaylandGLFW = true;})
+    themechanger
+
+    # Games
+    prismlauncher
+
+    # PDF Viewers
     qpdfview
-    obsidian
-    mpv
-    vesktop
-    qbittorrent
-    keepassxc
-    lunarvim
-    alejandra
+    zathura
 
-    gscreenshot
+    # Dev
+    alejandra # Nix formatter
 
+    # math related
     cantor
     plots
-
+    ghostscript
+    tex # latex
+    #
     # Use pCloud module fix until issue is fixed: https://discourse.nixos.org/t/pcloud-gives-segmentation-fault/31330/1
     # pcloud
 
@@ -86,7 +135,7 @@ in {
     # cage gamescope
     xwayland-satellite
 
-    yazi # terminal file manager
+    # Misc
     ripgrep # recursively searches directories for a regex pattern
     jq # A lightweight and flexible command-line JSON processor
     yq-go # yaml processor https://github.com/mikefarah/yq
@@ -94,85 +143,85 @@ in {
     fzf # A command-line fuzzy finder
   ];
 
-  programs.niri = {
-    config = confFile;
-    settings.spawn-at-startup = [
-      {command = ["xwayland-satellite"];}
-      {command = ["env" "DISPLAY=:1" "pcloud"];}
-    ];
-  };
+  # programs.niri = {
+  #   config = confFile;
+  #   settings.spawn-at-startup = [
+  #     {command = ["xwayland-satellite"];}
+  #     {command = ["env" "DISPLAY=:1" "pcloud"];}
+  #   ];
+  # };
 
   # Hyprland (eww 🤮)
-  wayland.windowManager.hyprland = {
-    enable = true;
-    package = pkgs.hyprland;
-    xwayland.enable = true;
-    systemd.enable = true;
-    settings = {
-      env = mapAttrsToList (name: value: "${name},${toString value}") {
-        NIXOS_OZONE_WL = "1";
-        LIBVA_DRIVER_NAME = "nvidia";
-        XDG_SESSION_TYPE = "wayland";
-        GBM_BACKEND = "nvidia-drm";
-        __GLX_VENDOR_LIBRARY_NAME = "nvidia";
-      };
-      cursor = {
-        no_hardware_cursors = true;
-      };
-      animations = {
-        enabled = 0;
-      };
-      exec-once = [
-            "${pkgs.mako}/bin/mako"
-            "${pkgs.swaybg}/bin/swaybg --image ${wallpaper_directory} --mode fill"
-          ];
-      "monitor" = "DP-3,1920x1080@144,0x0,1";
-      "$mainMod" = "SUPER";
-      "$fileManager" = "nautilus";
-      "$menu" = "wofi --show drun";
-      bind = [
-        '',Print,exec,${pkgs.grim}/bin/grim -g "$(${pkgs.slurp}/bin/slurp)" - | ${pkgs.wl-clipboard}/bin/wl-copy -t image/png''
-        "SUPER,Return,exec,kitty"
-        "SUPER,M,exit,"
-        "$mainMod, W, killactive,"
-        "$mainMod, E, exec, $fileManager"
-        "$mainMod, V, togglefloating,"
-        "$mainMod, Space, exec, $menu"
-        "$mainMod, P, pseudo,"
-        "$mainMod, J, togglesplit,"
-        "$mainMod, F, fullscreen"
-
-        "$mainMod, H, movefocus, l"
-        "$mainMod, L, movefocus, r"
-        "$mainMod, K, movefocus, u"
-        "$mainMod, J, movefocus, d"
-
-        "$mainMod, 1, workspace, 1"
-        "$mainMod, 2, workspace, 2"
-        "$mainMod, 3, workspace, 3"
-        "$mainMod, 4, workspace, 4"
-        "$mainMod, 5, workspace, 5"
-        "$mainMod, 6, workspace, 6"
-
-        "$mainMod SHIFT, 1, movetoworkspace, 1"
-        "$mainMod SHIFT, 2, movetoworkspace, 2"
-        "$mainMod SHIFT, 3, movetoworkspace, 3"
-        "$mainMod SHIFT, 4, movetoworkspace, 4"
-        "$mainMod SHIFT, 5, movetoworkspace, 5"
-        "$mainMod SHIFT, 6, movetoworkspace, 6"
-
-        # "$mainMod, S, togglespecialworkspace, magic"
-        # "$mainMod SHIFT, S, movetoworkspace, special:magic"
-
-        "$mainMod, mouse_down, workspace, e+1"
-        "$mainMod, mouse_up, workspace, e-1"
-      ];
-      bindm = [
-        "$mainMod, mouse:272, movewindow"
-        "$mainMod, mouse:273, resizewindow"
-      ];
-    };
-  };
+  # wayland.windowManager.hyprland = {
+  #   enable = true;
+  #   package = pkgs.hyprland;
+  #   xwayland.enable = true;
+  #   systemd.enable = true;
+  #   settings = {
+  #     env = mapAttrsToList (name: value: "${name},${toString value}") {
+  #       NIXOS_OZONE_WL = "1";
+  #       LIBVA_DRIVER_NAME = "nvidia";
+  #       XDG_SESSION_TYPE = "wayland";
+  #       GBM_BACKEND = "nvidia-drm";
+  #       __GLX_VENDOR_LIBRARY_NAME = "nvidia";
+  #     };
+  #     cursor = {
+  #       no_hardware_cursors = true;
+  #     };
+  #     animations = {
+  #       enabled = 0;
+  #     };
+  #     exec-once = [
+  #       "${pkgs.mako}/bin/mako"
+  #       "${pkgs.swaybg}/bin/swaybg --image ${wallpaper_directory} --mode fill"
+  #     ];
+  #     "monitor" = "DP-3,1920x1080@144,0x0,1";
+  #     "$mainMod" = "SUPER";
+  #     "$fileManager" = "nautilus";
+  #     "$menu" = "wofi --show drun";
+  #     bind = [
+  #       '',Print,exec,${pkgs.grim}/bin/grim -g "$(${pkgs.slurp}/bin/slurp)" - | ${pkgs.wl-clipboard}/bin/wl-copy -t image/png''
+  #       "SUPER,Return,exec,kitty"
+  #       "SUPER,M,exit,"
+  #       "$mainMod, W, killactive,"
+  #       "$mainMod, E, exec, $fileManager"
+  #       "$mainMod, V, togglefloating,"
+  #       "$mainMod, Space, exec, $menu"
+  #       "$mainMod, P, pseudo,"
+  #       "$mainMod, J, togglesplit,"
+  #       "$mainMod, F, fullscreen"
+  #
+  #       "$mainMod, H, movefocus, l"
+  #       "$mainMod, L, movefocus, r"
+  #       "$mainMod, K, movefocus, u"
+  #       "$mainMod, J, movefocus, d"
+  #
+  #       "$mainMod, 1, workspace, 1"
+  #       "$mainMod, 2, workspace, 2"
+  #       "$mainMod, 3, workspace, 3"
+  #       "$mainMod, 4, workspace, 4"
+  #       "$mainMod, 5, workspace, 5"
+  #       "$mainMod, 6, workspace, 6"
+  #
+  #       "$mainMod SHIFT, 1, movetoworkspace, 1"
+  #       "$mainMod SHIFT, 2, movetoworkspace, 2"
+  #       "$mainMod SHIFT, 3, movetoworkspace, 3"
+  #       "$mainMod SHIFT, 4, movetoworkspace, 4"
+  #       "$mainMod SHIFT, 5, movetoworkspace, 5"
+  #       "$mainMod SHIFT, 6, movetoworkspace, 6"
+  #
+  #       # "$mainMod, S, togglespecialworkspace, magic"
+  #       # "$mainMod SHIFT, S, movetoworkspace, special:magic"
+  #
+  #       "$mainMod, mouse_down, workspace, e+1"
+  #       "$mainMod, mouse_up, workspace, e-1"
+  #     ];
+  #     bindm = [
+  #       "$mainMod, mouse:272, movewindow"
+  #       "$mainMod, mouse:273, resizewindow"
+  #     ];
+  #   };
+  # };
 
   # Sway (Nvidia GPU 😞)
   # wayland.windowManager.sway = {
@@ -185,75 +234,6 @@ in {
   #       # Launch Firefox on start
   #       {command = "firefox";}
   #     ];
-  #   };
-  # };
-
-  # programs.niri = {
-  #   enable = true;
-  #   settings = {
-  #     binds = with config.lib.niri.actions; let
-  #       sh = spawn "sh" "-c";
-  #     in {
-  #       # First Key Row
-  #       "Super+R".action = spawn "${pkgs.wofi}/bin/wofi" "--show" "drun";
-  #       "Super+Return".action = spawn "${pkgs.kitty}/bin/kitty";
-  #       "Super+E".action = spawn "${pkgs.firefox-bin}/bin/firefox";
-  #       "Super+W".action = close-window;
-
-  #       # Quit Niri
-  #       "Super+Shift+Q".action = quit;
-
-  #       "Super+Slash".action = show-hotkey-overlay;
-
-  #       "Print".action = screenshot;
-
-  #       "Super+H".action = focus-column-left;
-  #       "Super+J".action = focus-window-down;
-  #       "Super+K".action = focus-window-up;
-  #       "Super+L".action = focus-column-right;
-
-  # "Super+Ctrl+H".action = move-column-left;
-  # "Super+Ctrl+J".action = move-window-down;
-  # "Super+Ctrl+K".action = move-window-up;
-  # "Super+Ctrl+L".action = move-column-right;
-
-  # "Super+Comma".action = focus-column-first;
-  # "Super+Period".action = focus-column-last;
-  # "Super+Ctrl+Comma".action = move-column-to-first;
-  # "Super+Ctrl+Period".action = move-column-to-last;
-
-  # "Super+Shift+H".action = focus-monitor-left;
-  # "Super+Shift+J".action = focus-monitor-down;
-  # "Super+Shift+K".action = focus-monitor-up;
-  # "Super+Shift+L".action = focus-monitor-right;
-
-  # "Super+U".action = focus-workspace-down;
-  # "Super+I".action = focus-workspace-up;
-
-  # "Super+WheelScrollDown".action = focus-workspace-down;
-  # "Super+WheelScrollUp".action = focus-workspace-up;
-  # "Super+WheelScrollDown".cooldown-ms = 150;
-  # "Super+WheelScrollUp".cooldown-ms = 150;
-  # "Super+Minus".action = set-column-width "-10%";
-  # "Super+Equal".action = set-column-width "+10%";
-
-  #       "Super+Shift+Minus".action = set-window-height "-10%";
-  #       "Super+Shift+Equal".action = set-window-height "+10%";
-
-  #       # Workspackes
-  #       "Super+1".action = focus-workspace 1;
-  #       "Super+2".action = focus-workspace 2;
-  #       "Super+3".action = focus-workspace 3;
-
-  #       "Super+Ctrl+1".action = move-window-to-workspace 1;
-  #       "Super+Ctrl+2".action = move-window-to-workspace 2;
-  #       "Super+Ctrl+3".action = move-window-to-workspace 3;
-
-  #       # Special Keys
-  #       "XF86AudioRaiseVolume".action = sh "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.1+";
-  #       "XF86AudioLowerVolume".action = sh "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.1-";
-  #       "XF86AudioMute".action = sh "wpctl" "set-mute" "@DEFAULT_AUDIO_SINK@" "toggle";
-  #     };
   #   };
   # };
 
@@ -270,24 +250,22 @@ in {
         svelte.svelte-vscode # Svelte
         rust-lang.rust-analyzer # Rust
         vscodevim.vim # Vim
+        james-yu.latex-workshop # Latex
       ]
       ++ pkgs.vscode-utils.extensionsFromVscodeMarketplace [
         # To fetch sha256:
         # nix-prefetch-url https://marketplace.visualstudio.com/_apis/public/gallery/publishers/tauri-apps/vsextensions/tauri-vscode/0.2.6/vspackage
         # Tauri
-        {
-          name = "tauri-vscode";
-          publisher = "tauri-apps";
-          version = "0.2.6";
-          sha256 = "03nfyiac562kpndy90j7vc49njmf81rhdyhjk9bxz0llx4ap3lrv";
-        }
+        # {
+        #   name = "tauri-vscode";
+        #   publisher = "tauri-apps";
+        #   version = "0.2.6";
+        #   sha256 = "03nfyiac562kpndy90j7vc49njmf81rhdyhjk9bxz0llx4ap3lrv";
+        # }
       ];
   };
   programs.neovim = {
     enable = true;
-    extraConfig = ''
-      set number relativenumber
-    '';
   };
   programs.obs-studio = {
     enable = true;
@@ -307,7 +285,7 @@ in {
   programs.kitty = {
     enable = true;
     # theme = "shadotheme";
-    theme = "Snazzy";
+    themeFile = "snazzy";
     # theme = "moonlight";
     # theme = "Gruvbox Material Dark Soft";
     font = {
@@ -340,10 +318,13 @@ in {
       cr = "cargo run";
       # Nix aliases
       nd = "nix develop";
+      uf = "sudo git add . && sudo nix flake update"; # Update flakes
+      us = "sudo git add . && sudo nixos-rebuild switch"; # Update system
+      u = "sudo git add . && sudo nix flake update && sudo git add . && sudo nixos-rebuild switch"; # Update both
+
       # Git aliases
       gs = "git status";
-      u = "git add . && sudo nixos-rebuild switch";
-      uf = "git add . && nix flake update && sudo nixos-rebuild switch";
+      ga = "git add .";
     };
     oh-my-zsh = {
       enable = true;
