@@ -9,6 +9,7 @@
   caches = {
     "https://niri.cachix.org" = "niri.cachix.org-1:Wv0OmO7PsuocRKzfDoJ3mulSl7Z6oezYhGhR+3W2964=";
     "https://cosmic.cachix.org/" = "cosmic.cachix.org-1:Dya9IyXD4xdBehWjrkPv6rtxpmMdRel02smYzA85dPE=";
+    "https://cuda-maintainers.cachix.org" = "cuda-maintainers.cachix.org-1:0dq3bujKpuEPMCX6U4WylrUDZ9JyUG0VpVZa7CNfq5E="
   };
 in {
   imports = [
@@ -94,17 +95,14 @@ in {
 
   # Services
   services = {
-    # Desktop Managers
-    desktopManager = {
-      cosmic.enable = true;
-    };
+
     # Display Managers
     displayManager = {
-      cosmic-greeter.enable = true;
+      # cosmic-greeter.enable = true;
       sddm = {
         enable = true;
       };
-      # Enable automatic login for the user.
+      # # Enable automatic login for the user.
       # autoLogin = {
       #   enable = true;
       #   user = "river";
@@ -117,6 +115,8 @@ in {
         layout = "us";
         variant = "";
       };
+desktopManager.plasma5.enable = true;
+
       # desktopManager.cde.enable = true;
     };
   };
